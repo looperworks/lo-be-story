@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lo/Be Story — What's Your One Word?</title>
+    <style>
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-Book.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-BookItalic.otf') format('opentype');
+            font-weight: 400;
+            font-style: italic;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-MediumItalic.otf') format('opentype');
+            font-weight: 500;
+            font-style: italic;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-BoldItalic.otf') format('opentype');
+            font-weight: 700;
+            font-style: italic;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-Black.otf') format('opentype');
+            font-weight: 900;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'CircularStd';
+            src: url('CircularStd-BlackItalic.otf') format('opentype');
+            font-weight: 900;
+            font-style: italic;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* Neutrals */
+            --bg-start: #F2F0ED;
+            --bg-reveal: #1A1A1A;
+            --text-dark: #1A1A1A;
+            --text-light: #6B6560;
+            --text-outline: rgba(26, 26, 26, 0.15);
+
+            /* Crystal One-inspired dimension colors */
+            --color-values: #E8585A;       /* Coral — Values */
+            --color-strengths: #8B6AAE;    /* Purple — Strengths */
+            --color-skills: #3BBFB2;       /* Teal — Skills */
+            --color-gold: #E8C848;         /* Gold — Result */
+
+            /* Soft tinted backgrounds per dimension */
+            --bg-values: #FBF0F0;
+            --bg-values-deep: #F5DFDF;
+            --bg-strengths: #F4F0F8;
+            --bg-strengths-deep: #E8E0F0;
+            --bg-skills: #EDF8F7;
+            --bg-skills-deep: #DAF0ED;
+            --bg-compress: #1A1A1A;
+            --bg-final: #F9F7F4;
+
+            /* Fonts */
+            --font-display: 'CircularStd', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-serif: 'CircularStd', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'CircularStd', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        html { font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-start);
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== MARQUEE TICKER ===== */
+        .marquee {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 36px;
+            background: var(--text-dark);
+            overflow: hidden;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .marquee-inner {
+            display: flex;
+            white-space: nowrap;
+            animation: marqueeScroll 20s linear infinite;
+        }
+
+        .marquee-item {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            padding: 0 48px;
+        }
+
+        .marquee-item:nth-child(3n+1) { color: var(--color-values); opacity: 0.7; }
+        .marquee-item:nth-child(3n+2) { color: var(--color-strengths); opacity: 0.7; }
+        .marquee-item:nth-child(3n) { color: var(--color-skills); opacity: 0.7; }
+
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ===== SCREENS ===== */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 36px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.6s ease;
+            cursor: default;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ===== INTRO SCREEN ===== */
+        .intro-tag {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .intro-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 6.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 32px;
+        }
+
+        .intro-title em {
+            font-weight: 500;
+            font-style: italic;
+            background: linear-gradient(90deg, var(--color-values), var(--color-strengths), var(--color-skills));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Typing cursor */
+        .typing-cursor {
+            font-weight: 300;
+            color: var(--color-gold);
+            animation: cursorBlink 0.7s step-end infinite;
+            margin-left: 2px;
+        }
+
+        .typing-cursor.hidden { display: none; }
+
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Floating background words on intro */
+        .intro-bg-words {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .intro-bg-word {
+            position: absolute;
+            font-family: var(--font-display);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            opacity: 0.03;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        /* Ensure intro content sits above bg words */
+        .intro-tag, .intro-title, .intro-sub, .intro-start {
+            position: relative;
+            z-index: 1;
+        }
+
+        .intro-sub {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            letter-spacing: 0.02em;
+            transition: opacity 0.6s ease;
+        }
+
+        .intro-start {
+            margin-top: 48px;
+            background: var(--color-gold);
+            color: var(--text-dark);
+            border: none;
+            padding: 16px 44px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            animation: gentlePulse 2.5s ease-in-out infinite;
+        }
+
+        .intro-start:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+            animation: none;
+        }
+
+        @keyframes gentlePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232, 200, 72, 0); }
+            50% { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(232, 200, 72, 0.08); }
+        }
+
+        /* ===== CHOICE SCREENS ===== */
+        .choice-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .choice {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            position: relative;
+        }
+
+        .choice:hover { transform: scale(1.02); }
+        .choice:active { transform: scale(0.97); }
+
+        .screen[data-dim="values"] .choice:hover { background-color: rgba(232, 88, 90, 0.06); }
+        .screen[data-dim="strengths"] .choice:hover { background-color: rgba(139, 106, 174, 0.06); }
+        .screen[data-dim="skills"] .choice:hover { background-color: rgba(59, 191, 178, 0.06); }
+
+        .choice-word {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 7vw, 7rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .choice-word.filled {
+            color: var(--text-dark);
+        }
+
+        .choice-word.outlined {
+            color: transparent;
+            -webkit-text-stroke: 2px var(--text-outline);
+        }
+
+        /* Dimension-colored hover states */
+        .screen[data-dim="values"] .choice:hover .choice-word.outlined {
+            -webkit-text-stroke-color: var(--color-values);
+        }
+        .screen[data-dim="values"] .choice:hover .choice-word.filled {
+            color: var(--color-values);
+        }
+        .screen[data-dim="strengths"] .choice:hover .choice-word.outlined {
+            -webkit-text-stroke-color: var(--color-strengths);
+        }
+        .screen[data-dim="strengths"] .choice:hover .choice-word.filled {
+            color: var(--color-strengths);
+        }
+        .screen[data-dim="skills"] .choice:hover .choice-word.outlined {
+            -webkit-text-stroke-color: var(--color-skills);
+        }
+        .screen[data-dim="skills"] .choice:hover .choice-word.filled {
+            color: var(--color-skills);
+        }
+
+        .choice-divider {
+            width: 1px;
+            height: 40%;
+            background: var(--text-outline);
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transition: background 0.3s ease;
+        }
+
+        .screen[data-dim="values"] .choice-divider { background: rgba(232, 88, 90, 0.2); }
+        .screen[data-dim="strengths"] .choice-divider { background: rgba(139, 106, 174, 0.2); }
+        .screen[data-dim="skills"] .choice-divider { background: rgba(59, 191, 178, 0.2); }
+
+        /* Round indicator + progress counter */
+        .round-indicator {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .round-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-outline);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .round-dot.filled { background: var(--text-dark); }
+        .round-dot.color-values { background: var(--color-values); }
+        .round-dot.color-strengths { background: var(--color-strengths); }
+        .round-dot.color-skills { background: var(--color-skills); }
+        .round-dot.current { transform: scale(1.5); }
+
+        .round-counter {
+            position: absolute;
+            top: 40px;
+            right: 32px;
+            font-family: var(--font-body);
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s, color 0.3s ease;
+        }
+
+        .screen.active .round-counter { opacity: 0.6; }
+
+        /* Quiz progress bar */
+        .quiz-progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 3px;
+            border-radius: 0 2px 2px 0;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+        }
+
+        /* Dimension label */
+        .dimension-label {
+            position: absolute;
+            top: 64px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-body);
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s;
+        }
+
+        .screen[data-dim="values"] .dimension-label { color: var(--color-values); }
+        .screen[data-dim="strengths"] .dimension-label { color: var(--color-strengths); }
+        .screen[data-dim="skills"] .dimension-label { color: var(--color-skills); }
+
+        .screen.active .dimension-label { opacity: 1; }
+
+        /* ===== COMPRESSION SCREEN ===== */
+        .compression-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-word {
+            position: absolute;
+            font-family: var(--font-display);
+            font-weight: 900;
+            text-transform: uppercase;
+            transition: all 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0.85;
+        }
+
+        .floating-word.dim-values { color: var(--color-values); }
+        .floating-word.dim-strengths { color: var(--color-strengths); }
+        .floating-word.dim-skills { color: var(--color-skills); }
+
+        .floating-word.compressed {
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) scale(0) !important;
+            opacity: 0 !important;
+        }
+
+        .result-word {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+
+        .result-word.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .result-description {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            max-width: 520px;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.3s;
+        }
+
+        .result-description.visible { opacity: 1; }
+
+        .result-description p {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .result-description .method-note {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--color-gold);
+            opacity: 0.7;
+        }
+
+        /* Dimension breakdown on compression */
+        .dimension-breakdown {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 24px;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .dimension-breakdown.visible { opacity: 1; }
+
+        .dim-chip {
+            font-family: var(--font-body);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: chipIn 0.4s ease forwards;
+        }
+
+        .dim-chip:nth-child(1) { animation-delay: 0s; }
+        .dim-chip:nth-child(2) { animation-delay: 0.15s; }
+        .dim-chip:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes chipIn {
+            to { opacity: 0.85; transform: translateY(0); }
+        }
+
+        /* Cinematic auto-advance transition */
+        #screen-compress.cinematic-out {
+            animation: cinematicZoomFade 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes cinematicZoomFade {
+            0% { opacity: 1; transform: scale(1); }
+            60% { opacity: 0.6; transform: scale(1.08); }
+            100% { opacity: 0; transform: scale(1.15); }
+        }
+
+        /* ===== SCROLL PROGRESS INDICATOR ===== */
+        .scroll-progress {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            z-index: 90;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .scroll-progress-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 0 2px 2px 0;
+            transition: width 0.1s linear, background-color 0.4s ease;
+            background: var(--color-gold);
+        }
+
+        /* Section highlight pulse */
+        .reveal-section.section-pulse {
+            animation: sectionHighlight 1.2s ease;
+        }
+
+        @keyframes sectionHighlight {
+            0% { box-shadow: inset 4px 0 0 0 transparent; }
+            30% { box-shadow: inset 4px 0 0 0 currentColor; }
+            100% { box-shadow: inset 4px 0 0 0 transparent; }
+        }
+
+        /* Share button styles */
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--text-light);
+            padding: 10px 24px;
+            font-family: var(--font-body);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: 1px solid var(--text-outline);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 16px;
+        }
+
+        .share-btn:hover { border-color: var(--text-dark); color: var(--text-dark); }
+
+        .share-btn.copied {
+            border-color: var(--color-skills);
+            color: var(--color-skills);
+        }
+
+        /* Word cloud hover tooltip */
+        .wc-tooltip {
+            position: absolute;
+            background: rgba(26, 26, 26, 0.92);
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            padding: 8px 14px;
+            border-radius: 6px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+            max-width: 220px;
+            white-space: normal;
+            line-height: 1.4;
+            transform: translateX(-50%);
+        }
+
+        .wc-tooltip.visible { opacity: 1; }
+
+        /* ===== REVEAL / FULL WEBSITE ===== */
+        #screen-reveal {
+            overflow-y: auto;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+
+        /* Sticky nav for website section */
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 80;
+            background: rgba(249, 247, 244, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .site-nav.visible { opacity: 1; }
+
+        .site-nav-logo {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            opacity: 0.6;
+        }
+
+        .site-nav-logo span { font-weight: 400; font-style: italic; opacity: 0.6; }
+
+        .site-nav-links {
+            display: flex;
+            gap: 28px;
+        }
+
+        .site-nav-links a {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .site-nav-links a:hover { color: var(--text-dark); }
+
+        /* Hero */
+        .reveal-hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px 60px;
+            position: relative;
+        }
+
+        .reveal-word-small {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: #C9A020;
+            margin-bottom: 24px;
+        }
+
+        .reveal-hero-word {
+            font-family: var(--font-display);
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--text-dark);
+            margin-bottom: 28px;
+            line-height: 1;
+        }
+
+        .reveal-hero-desc {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            line-height: 1.85;
+            max-width: 520px;
+            margin-bottom: 40px;
+        }
+
+        .reveal-hero-method {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #C9A020;
+            opacity: 0.8;
+            margin-bottom: 48px;
+        }
+
+        .reveal-cta {
+            display: inline-block;
+            background: var(--color-gold);
+            color: var(--text-dark);
+            padding: 16px 40px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .reveal-cta:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        .reveal-cta-outline {
+            display: inline-block;
+            background: transparent;
+            color: var(--text-dark);
+            padding: 14px 36px;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 4px;
+            border: 1.5px solid var(--text-outline);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+
+        .reveal-cta-outline:hover { border-color: var(--text-dark); }
+
+        .reveal-secondary {
+            display: inline-block;
+            margin-top: 16px;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.2s ease;
+        }
+
+        .reveal-secondary:hover { color: var(--text-dark); }
+
+        .reveal-scroll-hint {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-body);
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-outline);
+            animation: subtleBounce 2s ease infinite;
+        }
+
+        @keyframes subtleBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(6px); }
+        }
+
+        /* Sections */
+        .reveal-section {
+            padding: 80px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .reveal-section.wide { max-width: 1060px; }
+
+        .reveal-section-tag {
+            font-family: var(--font-body);
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .reveal-section-tag.tag-values { color: var(--color-values); }
+        .reveal-section-tag.tag-strengths { color: var(--color-strengths); }
+        .reveal-section-tag.tag-skills { color: var(--color-skills); }
+        .reveal-section-tag.tag-gold { color: var(--color-gold); }
+
+        .reveal-section h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .reveal-section h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+            margin-top: 28px;
+            color: var(--text-dark);
+        }
+
+        .reveal-section p {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            line-height: 1.85;
+            margin-bottom: 16px;
+            max-width: 640px;
+        }
+
+        .reveal-section .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-top: 32px;
+        }
+
+        .reveal-section .two-col p { max-width: none; }
+
+        .reveal-divider {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-values), var(--color-strengths), var(--color-skills));
+            opacity: 0.3;
+            border-radius: 1px;
+            margin: 0 auto;
+        }
+
+        .reveal-divider-left {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-values), var(--color-strengths), var(--color-skills));
+            opacity: 0.3;
+            border-radius: 1px;
+            margin: 32px 0;
+        }
+
+        /* Full-width band */
+        .reveal-band {
+            background: var(--text-dark);
+            color: #fff;
+            padding: 80px 24px;
+        }
+
+        .reveal-band-inner {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .reveal-band .reveal-section-tag { color: var(--color-gold); }
+        .reveal-band h2 { color: #fff; }
+        .reveal-band p { color: rgba(255,255,255,0.6); max-width: 640px; }
+
+        /* Stats */
+        .reveal-stats {
+            display: flex;
+            gap: 48px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .reveal-stat-num {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: var(--text-dark);
+        }
+
+        .reveal-band .reveal-stat-num { color: #fff; }
+
+        .reveal-stat-label {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .reveal-band .reveal-stat-label { color: rgba(255,255,255,0.4); }
+
+        /* Process steps */
+        .reveal-steps {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .reveal-step {
+            padding: 28px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: transform 0.2s ease;
+        }
+
+        .reveal-step:hover { transform: translateY(-2px); }
+
+        .reveal-step-num {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        .reveal-step:nth-child(1) .reveal-step-num { color: var(--color-values); }
+        .reveal-step:nth-child(2) .reveal-step-num { color: var(--color-strengths); }
+        .reveal-step:nth-child(3) .reveal-step-num { color: var(--color-skills); }
+        .reveal-step:nth-child(4) .reveal-step-num { color: var(--color-gold); }
+
+        .reveal-step-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .reveal-step-desc {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            line-height: 1.85;
+        }
+
+        .reveal-step-detail {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.85;
+            margin-top: 8px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        /* Services grid */
+        .reveal-services {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .reveal-service {
+            padding: 24px;
+            border-left: 2px solid;
+        }
+
+        .reveal-service:nth-child(1) { border-color: var(--color-values); }
+        .reveal-service:nth-child(2) { border-color: var(--color-strengths); }
+        .reveal-service:nth-child(3) { border-color: var(--color-skills); }
+        .reveal-service:nth-child(4) { border-color: var(--color-gold); }
+
+        .reveal-service-title {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .reveal-service-desc {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            line-height: 1.85;
+        }
+
+        /* Team grid */
+        .reveal-team {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 36px;
+            margin-top: 32px;
+        }
+
+        .reveal-team-card {
+            text-align: left;
+            padding: 24px 12px;
+        }
+
+        .reveal-team-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .reveal-team-card:nth-child(1) .reveal-team-avatar { background: var(--color-values); }
+        .reveal-team-card:nth-child(2) .reveal-team-avatar { background: var(--color-strengths); }
+        .reveal-team-card:nth-child(3) .reveal-team-avatar { background: var(--color-skills); }
+        .reveal-team-card:nth-child(4) .reveal-team-avatar { background: var(--color-values); }
+
+        .reveal-team-name {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .reveal-team-role {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .reveal-team-bio {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            line-height: 1.85;
+            margin-bottom: 12px;
+        }
+
+        /* Final CTA */
+        .reveal-final-cta {
+            text-align: center;
+            padding: 80px 24px 100px;
+            max-width: 640px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .reveal-final-cta h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+        }
+
+        .reveal-final-cta p {
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 36px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Site footer */
+        .site-footer {
+            background: var(--text-dark);
+            color: rgba(255,255,255,0.4);
+            padding: 40px 32px;
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.04em;
+        }
+
+        .site-footer a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .site-footer a:hover { color: #fff; }
+
+        .site-footer-links { display: flex; gap: 24px; }
+
+        @media (max-width: 768px) {
+            .reveal-steps { grid-template-columns: 1fr; }
+            .reveal-services { grid-template-columns: 1fr; }
+            .reveal-team { grid-template-columns: 1fr; }
+            .reveal-stats { gap: 24px; }
+            .reveal-section .two-col { grid-template-columns: 1fr; gap: 24px; }
+            .reveal-band-inner .two-col,
+            [style*="grid-template-columns:1fr 1fr 1fr"],
+            [style*="grid-template-columns: 1fr 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+            .site-nav-links { gap: 16px; }
+            .site-nav-links a { font-size: 0.6rem; }
+            .site-footer { flex-direction: column; gap: 16px; text-align: center; }
+        }
+
+        /* ===== HIDDEN INFO BOXES ===== */
+        .info-triggers {
+            position: fixed;
+            bottom: 48px;
+            right: 20px;
+            display: flex;
+            gap: 6px;
+            z-index: 90;
+        }
+
+        .info-trigger {
+            font-family: var(--font-body);
+            font-size: 0.55rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-outline);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: color 0.3s ease;
+        }
+
+        .info-trigger:hover {
+            color: var(--text-light);
+        }
+
+        .info-trigger::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: currentColor;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        /* Info Panel Overlay */
+        .info-panel {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 400px;
+            max-width: 90vw;
+            height: calc(100vh - 36px);
+            background: rgba(250, 248, 245, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(0,0,0,0.06);
+            z-index: 95;
+            padding: 60px 36px 40px;
+            overflow-y: auto;
+            transition: right 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .info-panel.open {
+            right: 0;
+        }
+
+        .info-panel-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-light);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+
+        .info-panel-close:hover { color: var(--text-dark); }
+
+        .info-panel-tag {
+            font-family: var(--font-body);
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+
+        .info-panel h2 {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .info-panel p {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .info-panel .divider {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-values), var(--color-strengths), var(--color-skills));
+            margin: 28px 0;
+            opacity: 0.3;
+            border-radius: 1px;
+        }
+
+        .info-panel h3 {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .info-panel .step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-panel .step-num {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-outline);
+            line-height: 1;
+            min-width: 28px;
+        }
+
+        .info-panel .step:nth-child(1) .step-num { color: var(--color-values); opacity: 0.5; }
+        .info-panel .step:nth-child(2) .step-num { color: var(--color-strengths); opacity: 0.5; }
+        .info-panel .step:nth-child(3) .step-num { color: var(--color-skills); opacity: 0.5; }
+        .info-panel .step:nth-child(4) .step-num { color: var(--color-gold); opacity: 0.5; }
+        .info-panel .step:nth-child(5) .step-num { color: var(--color-values); opacity: 0.5; }
+
+        .info-panel .step-text {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .info-panel .step-text strong {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .info-panel .contact-line {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            margin-top: 8px;
+        }
+
+        .info-panel .contact-line a {
+            color: var(--text-dark);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: var(--color-gold);
+        }
+
+        /* Panel overlay backdrop */
+        .panel-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.08);
+            z-index: 94;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .panel-backdrop.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ===== LOGO ===== */
+        .logo {
+            position: fixed;
+            top: 28px;
+            left: 28px;
+            z-index: 90;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-dark);
+            opacity: 0.25;
+            transition: opacity 0.3s ease;
+            cursor: default;
+        }
+
+        .logo:hover { opacity: 0.6; }
+        .logo span { font-weight: 400; font-style: italic; opacity: 0.6; }
+
+        /* ===== TRANSITIONS ===== */
+        .screen {
+            animation: none;
+        }
+
+        .screen.slide-in {
+            animation: slideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .screen.slide-in-left {
+            animation: slideInLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in-delay {
+            animation: fadeIn 0.6s ease forwards;
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        /* Scroll-triggered fade-up for reveal page sections */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .scroll-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .choice-container { flex-direction: column; }
+            .choice-divider {
+                width: 40%;
+                height: 1px;
+                left: 30%;
+                top: 50%;
+            }
+            .choice-word {
+                font-size: clamp(2.5rem, 12vw, 4.5rem);
+            }
+            .info-panel {
+                width: 100vw;
+                max-width: 100vw;
+                right: -100vw;
+            }
+            .info-triggers {
+                right: 12px;
+                bottom: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGO -->
+    <div class="logo">Lo Be <span>Story</span></div>
+
+    <!-- HIDDEN INFO TRIGGERS -->
+    <div class="info-triggers">
+        <button class="info-trigger" onclick="openPanel('about')">About</button>
+        <button class="info-trigger" onclick="openPanel('process')">Process</button>
+        <button class="info-trigger" onclick="openPanel('story')">Story</button>
+    </div>
+
+    <!-- PANEL BACKDROP -->
+    <div class="panel-backdrop" id="panelBackdrop" onclick="closePanel()"></div>
+
+    <!-- ABOUT PANEL -->
+    <div class="info-panel" id="panel-about">
+        <button class="info-panel-close" onclick="closePanel()">&times;</button>
+        <div class="info-panel-tag">About</div>
+        <h2>We help people find the words that matter</h2>
+        <p>Lo/Be Story is a narrative design studio. We work with universities, organizations, and individuals to transform the way people tell their professional stories.</p>
+        <p>Our signature methodology — Narrative by Design — was developed in partnership with the Dartmouth College Center for Career Design. It's a structured, research-backed process that compresses sprawling career histories into focused, powerful narratives.</p>
+        <div class="divider"></div>
+        <p>We believe the best stories aren't long. They're clear. And clarity comes from knowing which word — which single word — sits at the center of everything you do.</p>
+        <div class="divider"></div>
+        <div class="contact-line">
+            <a href="mailto:seth@lo-be-story.com">seth@lo-be-story.com</a>
+        </div>
+    </div>
+
+    <!-- PROCESS PANEL -->
+    <div class="info-panel" id="panel-process">
+        <button class="info-panel-close" onclick="closePanel()">&times;</button>
+        <div class="info-panel-tag">Process</div>
+        <h2>Narrative Compression</h2>
+        <p>Our process takes everything you could say and distills it down to the one thing that matters. Here's how it works:</p>
+        <div class="divider"></div>
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Intake</strong> — We start with everything. Your full experience, your messy history, the paragraph version of who you are.</div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Categorize</strong> — We map your experiences across three dimensions: Values (what matters), Strengths (what you're wired for), and Skills (what you do).</div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Compress</strong> — Paragraph becomes sentence. Sentence becomes phrase. Phrase becomes one word. This is where the magic happens.</div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>Rewrite</strong> — Using your one word as a lens, we rewrite your story — resume, pitch, bio — with focus and intention.</div>
+        </div>
+        <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-text"><strong>Reflect</strong> — Your one word isn't a permanent label. It's a tool for decision-making that evolves as you do.</div>
+        </div>
+        <div class="divider"></div>
+        <p>The quiz you just experienced is a playful taste of this process. The real thing goes much deeper.</p>
+    </div>
+
+    <!-- STORY PANEL -->
+    <div class="info-panel" id="panel-story">
+        <button class="info-panel-close" onclick="closePanel()">&times;</button>
+        <div class="info-panel-tag">Story</div>
+        <h2>Born at Dartmouth, built for everyone</h2>
+        <p>Narrative by Design started as a workshop at the Dartmouth College Center for Career Design. Students were struggling with the same problem professionals face everywhere: they had rich, complex experiences but couldn't articulate them clearly.</p>
+        <p>The traditional approach — write a better resume, practice your elevator pitch — wasn't working. Students didn't need better words. They needed fewer words. The right words.</p>
+        <div class="divider"></div>
+        <p>So we built a process that flips the script. Instead of adding more, we compress. We use card sorts drawn from Knowdell Career Values, CliftonStrengths, and Motivated Skills to map the landscape. Then we compress relentlessly until one word emerges — a word that becomes a decision-making filter for every story you tell.</p>
+        <p>That process is now Lo/Be Story. And the quiz you just took is the tiniest version of what we build for institutions and individuals.</p>
+        <div class="divider"></div>
+        <div class="contact-line">
+            <a href="mailto:seth@lo-be-story.com">Let's talk about your story →</a>
+        </div>
+    </div>
+
+    <!-- ===== SCREEN 1: INTRO ===== -->
+    <div class="screen active" id="screen-intro">
+        <!-- Faint floating background words -->
+        <div class="intro-bg-words" id="introBgWords" aria-hidden="true"></div>
+        <span class="intro-tag">Welcome to Lo/Be Story</span>
+        <h1 class="intro-title"><span id="introTyped"></span><span class="typing-cursor">|</span></h1>
+        <p class="intro-sub" id="introSub" style="opacity:0;">6 choices. 60 seconds. 1 word that changes everything.</p>
+        <button class="intro-start" id="introBtn" style="opacity:0;" onclick="startGame()">Begin</button>
+    </div>
+
+    <!-- ===== SCREENS 2-7: CHOICES ===== -->
+    <div class="screen" id="screen-q1" data-bg="#FBF0F0" data-dim="values">
+        <div class="quiz-progress-bar" id="qpb-1"></div>
+        <div class="round-indicator" id="dots-1"></div>
+        <div class="round-counter" id="rc-1">1 / 6</div>
+        <div class="dimension-label">Values</div>
+        <div class="choice-container">
+            <div class="choice" onclick="choose(1, 'BUILD')">
+                <span class="choice-word filled">BUILD</span>
+            </div>
+            <div class="choice-divider"></div>
+            <div class="choice" onclick="choose(1, 'DISCOVER')">
+                <span class="choice-word outlined">DISCOVER</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-q2" data-bg="#F4F0F8" data-dim="strengths">
+        <div class="quiz-progress-bar" id="qpb-2"></div>
+        <div class="round-indicator" id="dots-2"></div>
+        <div class="round-counter" id="rc-2">2 / 6</div>
+        <div class="dimension-label">Strengths</div>
+        <div class="choice-container">
+            <div class="choice" onclick="choose(2, 'LEAD')">
+                <span class="choice-word outlined">LEAD</span>
+            </div>
+            <div class="choice-divider"></div>
+            <div class="choice" onclick="choose(2, 'SUPPORT')">
+                <span class="choice-word filled">SUPPORT</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-q3" data-bg="#EDF8F7" data-dim="skills">
+        <div class="quiz-progress-bar" id="qpb-3"></div>
+        <div class="round-indicator" id="dots-3"></div>
+        <div class="round-counter" id="rc-3">3 / 6</div>
+        <div class="dimension-label">Skills</div>
+        <div class="choice-container">
+            <div class="choice" onclick="choose(3, 'CREATE')">
+                <span class="choice-word filled">CREATE</span>
+            </div>
+            <div class="choice-divider"></div>
+            <div class="choice" onclick="choose(3, 'ANALYZE')">
+                <span class="choice-word outlined">ANALYZE</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-q4" data-bg="#F5DFDF" data-dim="values">
+        <div class="quiz-progress-bar" id="qpb-4"></div>
+        <div class="round-indicator" id="dots-4"></div>
+        <div class="round-counter" id="rc-4">4 / 6</div>
+        <div class="dimension-label">Values</div>
+        <div class="choice-container">
+            <div class="choice" onclick="choose(4, 'DEPTH')">
+                <span class="choice-word outlined">DEPTH</span>
+            </div>
+            <div class="choice-divider"></div>
+            <div class="choice" onclick="choose(4, 'BREADTH')">
+                <span class="choice-word filled">BREADTH</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-q5" data-bg="#E8E0F0" data-dim="strengths">
+        <div class="quiz-progress-bar" id="qpb-5"></div>
+        <div class="round-indicator" id="dots-5"></div>
+        <div class="round-counter" id="rc-5">5 / 6</div>
+        <div class="dimension-label">Strengths</div>
+        <div class="choice-container">
+            <div class="choice" onclick="choose(5, 'SPEAK')">
+                <span class="choice-word filled">SPEAK</span>
+            </div>
+            <div class="choice-divider"></div>
+            <div class="choice" onclick="choose(5, 'LISTEN')">
+                <span class="choice-word outlined">LISTEN</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-q6" data-bg="#DAF0ED" data-dim="skills">
+        <div class="quiz-progress-bar" id="qpb-6"></div>
+        <div class="round-indicator" id="dots-6"></div>
+        <div class="round-counter" id="rc-6">6 / 6</div>
+        <div class="dimension-label">Skills</div>
+        <div class="choice-container">
+            <div class="choice" onclick="choose(6, 'STRUCTURE')">
+                <span class="choice-word outlined">STRUCTURE</span>
+            </div>
+            <div class="choice-divider"></div>
+            <div class="choice" onclick="choose(6, 'FLOW')">
+                <span class="choice-word filled">FLOW</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCREEN 8: COMPRESSION ===== -->
+    <div class="screen" id="screen-compress" data-bg="#1A1A1A">
+        <div class="compression-container" id="compressionArea">
+            <div class="result-word" id="resultWord"></div>
+        </div>
+        <div class="result-description" id="resultDesc">
+            <p id="resultDescText"></p>
+            <p class="method-note">You just experienced narrative compression — the core of our methodology.</p>
+        </div>
+        <div class="dimension-breakdown" id="dimBreakdown"></div>
+    </div>
+
+    <!-- ===== SCREEN 9: WORD CLOUD NAV ===== -->
+    <div class="screen" id="screen-wordcloud" data-bg="#F9F7F4">
+        <div id="wordCloudContainer" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
+            <div id="wordCloudHint" style="position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font-family:var(--font-body);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-outline);z-index:2;pointer-events:none;transition:opacity 0.5s ease;">Click any word to explore</div>
+            <!-- Section labels at top -->
+            <div id="wcLegend" style="position:absolute;top:24px;left:50%;transform:translateX(-50%);display:flex;gap:24px;z-index:3;pointer-events:none;">
+                <span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-values);opacity:0.7;">About</span>
+                <span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-skills);opacity:0.7;">Process</span>
+                <span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-strengths);opacity:0.7;">Team</span>
+                <span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);opacity:0.7;">Services</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCREEN 10: FULL WEBSITE ===== -->
+    <div class="screen" id="screen-reveal" data-bg="#F9F7F4">
+
+        <!-- SCROLL PROGRESS -->
+        <div class="scroll-progress" id="scrollProgress">
+            <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+        </div>
+
+        <!-- STICKY NAV (appears on scroll) -->
+        <nav class="site-nav" id="siteNav">
+            <div class="site-nav-logo">Lo/Be <span>Story</span></div>
+            <div class="site-nav-links">
+                <a href="#sect-about">About</a>
+                <a href="#sect-story">Story</a>
+                <a href="#sect-process">Process</a>
+                <a href="#sect-services">Services</a>
+                <a href="#sect-team">Team</a>
+                <a href="mailto:seth@lo-be-story.com">Contact</a>
+            </div>
+        </nav>
+
+        <!-- HERO: Your Word Result -->
+        <div class="reveal-hero" id="revealHero">
+            <div class="reveal-word-small" id="revealWordSmall"></div>
+            <div class="reveal-hero-word" id="revealHeroWord"></div>
+            <p class="reveal-hero-desc" id="revealHeroDesc"></p>
+            <p class="reveal-hero-method">Now discover the method behind the magic.</p>
+            <div>
+                <button class="reveal-cta" onclick="goToWordCloud()">Explore Lo/Be Story</button>
+                <button class="reveal-cta-outline" onclick="resetGame()">Play Again</button>
+            </div>
+            <button class="share-btn" id="shareBtn" onclick="shareResult()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share Your Word
+            </button>
+            <div class="reveal-scroll-hint">Scroll to learn more ↓</div>
+        </div>
+
+        <!-- ——— ABOUT ——— -->
+        <div class="reveal-divider"></div>
+        <div class="reveal-section scroll-reveal" id="sect-about">
+            <div class="reveal-section-tag tag-values">About</div>
+            <h2>Design Your Career Like a Story</h2>
+            <p>Stop following someone else's script. Your experiences, skills, and aspirations aren't just a list of credentials — they're the raw material of a narrative only you can author. At Lo/Be Story, we help you transform that material into an authentic, strategic story that opens doors.</p>
+            <p>Our Narrative Design Framework draws on psychology, design thinking, and reflective practice to guide you from fragmented experience to coherent direction. We don't offer prescriptive career advice. We equip you with the tools to become the architect of your own professional identity.</p>
+            <p>Lo/Be Story was founded on a conviction that careers aren't discovered — they're designed. We combine research-backed methodologies with creative strategy, helping students and professionals turn uncertainty into clarity and intention into action.</p>
+            <div class="reveal-divider-left"></div>
+            <div class="reveal-stats">
+                <div class="reveal-stat">
+                    <div class="reveal-stat-num">500+</div>
+                    <div class="reveal-stat-label">Narratives Designed</div>
+                </div>
+                <div class="reveal-stat">
+                    <div class="reveal-stat-num">95%</div>
+                    <div class="reveal-stat-label">Graduate Admission Success</div>
+                </div>
+                <div class="reveal-stat">
+                    <div class="reveal-stat-num">200+</div>
+                    <div class="reveal-stat-label">Career Journeys Reimagined</div>
+                </div>
+                <div class="reveal-stat">
+                    <div class="reveal-stat-num">15</div>
+                    <div class="reveal-stat-label">Years in Design & Education</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ——— STORY ——— -->
+        <div class="reveal-band scroll-reveal">
+            <div class="reveal-band-inner" id="sect-story">
+                <div class="reveal-section-tag">Our Story</div>
+                <h2>We Started Lo/Be Story Because We Kept Witnessing the Same Paradox</h2>
+                <p>Brilliant students who could ace any exam but couldn't answer the most fundamental question: "What do you actually want?" These high-achievers had mastered navigating external expectations, but when those scripts ended at graduation, they felt disoriented despite impressive credentials. The challenge wasn't a deficit of talent — it was the absence of authorship.</p>
+                <p>Our insight emerged from a consistent pattern: the students who thrived after graduation weren't necessarily those with the highest GPAs — they were the ones who could articulate a coherent narrative about who they were and where they were heading. Yet no institution was teaching them how to construct that narrative with rigor and intentionality.</p>
+                <div class="reveal-divider-left"></div>
+                <h3 style="color:#fff;">The Story Behind "Lo/Be"</h3>
+                <div class="two-col" style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:0;">
+                    <div>
+                        <p><strong style="color:var(--color-values);">Lo</strong> stands for <em>Look</em> — examining your current reality with honesty and clarity. It encompasses everything you've cultivated thus far: your experiences, competencies, and circumstances. It begins with recognizing your starting point without judgment.</p>
+                    </div>
+                    <div>
+                        <p><strong style="color:var(--color-skills);">Be</strong> stands for <em>Become</em> — the person you are actively shaping through deliberate choices. Not a fixed destination, but an evolving process of becoming more fully and intentionally yourself.</p>
+                    </div>
+                </div>
+                <p style="margin-top:20px;">And the slash? It represents the bridge — the active work of transformation through experimentation, reflection, and narrative craft. It marks the space where you cease being a character in someone else's script and become the author of your own.</p>
+            </div>
+        </div>
+
+        <!-- ——— PROCESS ——— -->
+        <div class="reveal-section scroll-reveal" id="sect-process">
+            <div class="reveal-section-tag tag-skills">Process</div>
+            <h2>The Four Phases of Narrative Design</h2>
+            <p>Our methodology is iterative, dynamic, and deeply personal. Grounded in design thinking and reflective inquiry, these four interconnected phases guide you from ambiguity to articulation.</p>
+            <div class="reveal-steps">
+                <div class="reveal-step">
+                    <div class="reveal-step-num">01</div>
+                    <div class="reveal-step-title">Discovery & Framing</div>
+                    <div class="reveal-step-desc">Begin with the essential questions: Who am I? What do I value? What story am I living? Through research-backed assessments, narrative analysis, and energy mapping, we help you surface your core values, recurring patterns, and emergent themes.</div>
+                </div>
+                <div class="reveal-step">
+                    <div class="reveal-step-num">02</div>
+                    <div class="reveal-step-title">Prototyping & Exploration</div>
+                    <div class="reveal-step-desc">What futures excite you? What can you test before committing? We guide you in creating Odyssey Plans — three bold, distinct life trajectories — and designing low-risk experiments such as informational interviews, micro-projects, and field observations.</div>
+                </div>
+                <div class="reveal-step">
+                    <div class="reveal-step-num">03</div>
+                    <div class="reveal-step-title">Sense-Making & Integration</div>
+                    <div class="reveal-step-desc">What did you learn? What surprised you? We facilitate structured reflection and critical analysis, helping you identify emergent themes and synthesize your findings into coherent, actionable strategies.</div>
+                </div>
+                <div class="reveal-step">
+                    <div class="reveal-step-num">04</div>
+                    <div class="reveal-step-title">Narrative Construction & Articulation</div>
+                    <div class="reveal-step-desc">How do your experiences connect into a larger arc? We help you develop a Core Narrative Document, craft strategic stories for interviews and applications, and reframe past experiences into a cohesive, forward-looking narrative.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ——— SERVICES ——— -->
+        <div class="reveal-divider"></div>
+        <div class="reveal-section scroll-reveal" id="sect-services">
+            <div class="reveal-section-tag tag-gold">Services</div>
+            <h2>More Than Coaching — A Framework for Designing Your Future</h2>
+            <p>From narrative-based career strategy and personal branding to portfolio development and application support, our services are designed to move you from uncertainty to clarity and from intention to action.</p>
+            <div class="reveal-services">
+                <div class="reveal-service">
+                    <div class="reveal-service-title">Narrative Design Coaching</div>
+                    <div class="reveal-service-desc">Transform fragmented experiences into a clear, compelling narrative. Our signature framework helps you uncover your values, strengths, and direction — empowering you to author your next chapter with confidence and intentionality.</div>
+                </div>
+                <div class="reveal-service">
+                    <div class="reveal-service-title">Personal Branding & Profiles</div>
+                    <div class="reveal-service-desc">Cultivate an authentic professional presence across platforms. From LinkedIn narratives to portfolio storytelling, we help you articulate a consistent, compelling identity that reflects where you've been and where you're heading.</div>
+                </div>
+                <div class="reveal-service">
+                    <div class="reveal-service-title">Graduate & Career Applications</div>
+                    <div class="reveal-service-desc">Turn your application into a narrative that stands apart. We guide you in crafting statements of purpose, curricula vitae, and strategic stories that resonate with admissions committees and hiring managers alike.</div>
+                </div>
+                <div class="reveal-service">
+                    <div class="reveal-service-title">Story-Driven Workshops</div>
+                    <div class="reveal-service-desc">Develop the art and discipline of narrative for professional growth. Our workshops equip you with frameworks to design, compose, and deliver your story for interviews, networking, and pivotal career decisions.</div>
+                </div>
+            </div>
+            <div class="reveal-divider-left"></div>
+            <h3>Who We Work With</h3>
+            <div class="reveal-section two-col" style="padding:0; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-top:16px;">
+                <div>
+                    <p style="max-width:none;"><strong style="color:var(--text-dark);">Students & Graduates</strong><br>Gain clarity and direction as you prepare for internships, employment, or graduate study. We help you surface your core values, identify your distinctive strengths, and construct a compelling professional narrative.</p>
+                </div>
+                <div>
+                    <p style="max-width:none;"><strong style="color:var(--text-dark);">Career Changers</strong><br>Whether you're navigating a professional pivot or establishing credibility in a new discipline, we help you reframe your trajectory into a coherent, authentic strategy for what comes next.</p>
+                </div>
+                <div>
+                    <p style="max-width:none;"><strong style="color:var(--text-dark);">High-Achievers Seeking Purpose</strong><br>Your accomplishments are formidable — but their power lies in how you contextualize and communicate them. We help you craft narratives that foreground originality, vision, and meaningful impact.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ——— TEAM ——— -->
+        <div class="reveal-divider"></div>
+        <div class="reveal-section wide scroll-reveal" id="sect-team">
+            <div class="reveal-section-tag tag-strengths">Team</div>
+            <h2>Lo/Be Story Team</h2>
+            <p>A multidisciplinary team of scholars and practitioners with deep expertise in education, design, and career development — dedicated to helping students and emerging professionals discover and articulate their authentic narratives.</p>
+            <div class="reveal-team">
+                <div class="reveal-team-card">
+                    <div class="reveal-team-avatar">SL</div>
+                    <div class="reveal-team-name">Seth Looper</div>
+                    <div class="reveal-team-role">Founder</div>
+                    <div class="reveal-team-bio">Seth is an interdisciplinary educator and designer who bridges architecture, technology, and human development to build transformative learning experiences. His journey began in architecture studios, where he learned that the most powerful designs emerge from understanding human needs.</div>
+                    <div class="reveal-team-bio">At Dartmouth's Center for Career Design, he leads the Career Design Lab — transforming it into a learning experience environment where students approach career exploration as an act of design. His work blends design thinking, reflective practice, and experiential learning to guide students in visualizing, testing, and iterating their future pathways.</div>
+                    <div class="reveal-team-bio">He designs and facilitates scaffolded learning modules including Mind Mapping for Career Exploration, Value-Based Career Design, and Pathway Simulations — developing digital infrastructure and partnering with campus collaborators to create dynamic environments where students move from passive career planning to active future-building.</div>
+                </div>
+                <div class="reveal-team-card">
+                    <div class="reveal-team-avatar">PK</div>
+                    <div class="reveal-team-name">Peter Krause, Ph.D.</div>
+                    <div class="reveal-team-role">Senior Consultant</div>
+                    <div class="reveal-team-bio">Peter draws upon a robust background in teaching, advising, and program management to engage graduate students at all stages of their research, professional development, and career exploration. He holds a Ph.D. from Fordham University, an M.A. from New York University, and a B.A. from Goucher College.</div>
+                    <div class="reveal-team-bio">From Fordham to Dartmouth to Princeton's GradFUTURES, Peter's career has centered on helping students become clear-eyed about academic job markets, ambitious in their networking and skills development, and innovative in applying the graduate student toolbox widely. At Princeton, he manages six bespoke experiential fellowship programs as Assistant Director of Graduate Experiential Programs.</div>
+                    <div class="reveal-team-bio">Before Princeton, Peter advised students at Dartmouth's Center for Professional Development, directed writing centers at Fordham University, and taught composition courses — always guided by the belief that there is a nearly universal willingness among people to respond positively to the cold email from an inquisitive student.</div>
+                </div>
+                <div class="reveal-team-card">
+                    <div class="reveal-team-avatar">SA</div>
+                    <div class="reveal-team-name">Shahab Albahar, Ph.D.</div>
+                    <div class="reveal-team-role">Senior Consultant</div>
+                    <div class="reveal-team-bio">Shahab is a scholar and practitioner with a critical, intersectional approach spanning urban policy, environmental design, ecological restoration, and social advocacy. He holds a Ph.D. in City/Urban, Community and Regional Planning from the University of Virginia, an M.L.A. from Harvard, and dual B.Arch/B.F.A. degrees from RISD.</div>
+                    <div class="reveal-team-bio">His doctoral research at UVA provides a nuanced examination of urban spaces through the lens of queer ethnography, focusing on lived experiences and how liminal spaces are constructed, negotiated, and reclaimed within urban planning paradigms — emphasizing the multifaceted experiences of communities often overlooked in urban studies.</div>
+                    <div class="reveal-team-bio">Prior to his doctorate, Shahab taught architectural design and theory at Kuwait University, co-founded Parallel Studio — an architectural practice completing projects across Kuwait and Saudi Arabia — and led workshops in 3D modeling and visual representation. His work challenges traditional boundaries and champions design as a force for systemic change and ecological equity.</div>
+                </div>
+                <div class="reveal-team-card">
+                    <div class="reveal-team-avatar">BG</div>
+                    <div class="reveal-team-name">Brandon Green, Ph.D.</div>
+                    <div class="reveal-team-role">Senior Consultant</div>
+                    <div class="reveal-team-bio">Brandon brings nearly eight years of experience in higher education as a scholar, instructor, and mentor, committed to supporting students as they navigate their academic and professional paths. As a Career Coach at Dartmouth, he helps students explore career opportunities, discover their strengths, and design meaningful professional experiences.</div>
+                    <div class="reveal-team-bio">He believes career development is fundamentally a liberal arts challenge — one requiring reflection, storytelling, and the courage to experiment. He has served as a volunteer mentor and writing consultant for McNair Scholars, supporting first-generation and underrepresented students in developing graduate-level research, writing, and personal statements.</div>
+                    <div class="reveal-team-bio">Brandon helps students move from asking "What should I do?" to confidently declaring "Here's the story I'm writing" — guiding them to see that their professional journey is a personal narrative, best authored with intention and curiosity.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ——— FINAL CTA ——— -->
+        <div class="reveal-divider"></div>
+        <div class="reveal-final-cta scroll-reveal">
+            <h2>Ready to Discover Your Real Word?</h2>
+            <p>The quiz offered a glimpse. The real work goes deeper. Schedule a consultation and begin designing the narrative that opens doors.</p>
+            <a href="mailto:seth@lo-be-story.com" class="reveal-cta">Get a Free Consultation</a>
+            <br>
+            <button class="reveal-secondary" onclick="resetGame()">Take the quiz again</button>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="site-footer">
+            <div>© 2026 Lo/Be Story. All rights reserved.</div>
+            <div class="site-footer-links">
+                <a href="https://www.lo-be-story.com/" target="_blank">lo-be-story.com</a>
+                <a href="mailto:seth@lo-be-story.com">seth@lo-be-story.com</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MARQUEE -->
+    <div class="marquee">
+        <div class="marquee-inner">
+            <span class="marquee-item">Lo/Be Story</span>
+            <span class="marquee-item">Narrative by Design</span>
+            <span class="marquee-item">What's Your One Word?</span>
+            <span class="marquee-item">Lo/Be Story</span>
+            <span class="marquee-item">Narrative by Design</span>
+            <span class="marquee-item">What's Your One Word?</span>
+            <span class="marquee-item">Lo/Be Story</span>
+            <span class="marquee-item">Narrative by Design</span>
+            <span class="marquee-item">What's Your One Word?</span>
+            <span class="marquee-item">Lo/Be Story</span>
+            <span class="marquee-item">Narrative by Design</span>
+            <span class="marquee-item">What's Your One Word?</span>
+            <span class="marquee-item">Lo/Be Story</span>
+            <span class="marquee-item">Narrative by Design</span>
+            <span class="marquee-item">What's Your One Word?</span>
+            <span class="marquee-item">Lo/Be Story</span>
+            <span class="marquee-item">Narrative by Design</span>
+            <span class="marquee-item">What's Your One Word?</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== GAME STATE =====
+        let choices = [];
+        let currentRound = 0;
+        const totalRounds = 6;
+
+        // ===== INTRO TYPING ANIMATION =====
+        (function initIntro() {
+            const typedEl = document.getElementById('introTyped');
+            const subEl = document.getElementById('introSub');
+            const btnEl = document.getElementById('introBtn');
+            const cursor = document.querySelector('.typing-cursor');
+
+            // Floating background words
+            const bgWords = ['story', 'clarity', 'purpose', 'narrative', 'design', 'values', 'strengths',
+                'career', 'identity', 'discover', 'author', 'chapter', 'future', 'transform',
+                'confidence', 'direction', 'framework', 'coaching', 'strategy', 'branding'];
+            const bgContainer = document.getElementById('introBgWords');
+            bgWords.forEach((word, i) => {
+                const el = document.createElement('span');
+                el.className = 'intro-bg-word';
+                el.textContent = word;
+                el.style.fontSize = (0.8 + Math.random() * 2.5) + 'rem';
+                el.style.left = (Math.random() * 90 + 2) + '%';
+                el.style.top = (Math.random() * 85 + 5) + '%';
+                el.style.transform = 'rotate(' + (Math.random() * 16 - 8) + 'deg)';
+                bgContainer.appendChild(el);
+            });
+
+            // Typing sequences
+            const sequences = [
+                { text: "What's your story?", isDelete: false },
+                { text: "What's your story?", isDelete: true },
+                { text: "What's your\none word?", isDelete: false, isFinal: true }
+            ];
+
+            const typeSpeed = 95;
+            const deleteSpeed = 45;
+            const pauseAfterType = 1200;
+            const pauseAfterDelete = 400;
+
+            let seqIdx = 0;
+
+            function formatText(text, isFinal) {
+                if (isFinal) {
+                    // Wrap "one word?" in em for gradient
+                    return text.replace('one word?', '<br><em>one word?</em>');
+                }
+                return text;
+            }
+
+            function typeText(text, charIdx, cb) {
+                if (charIdx <= text.length) {
+                    const display = text.slice(0, charIdx);
+                    const seq = sequences[seqIdx];
+                    typedEl.innerHTML = formatText(display, seq.isFinal);
+                    setTimeout(() => typeText(text, charIdx + 1, cb), typeSpeed);
+                } else {
+                    cb();
+                }
+            }
+
+            function deleteText(text, charIdx, cb) {
+                if (charIdx >= 0) {
+                    const display = text.slice(0, charIdx);
+                    typedEl.innerHTML = display;
+                    setTimeout(() => deleteText(text, charIdx - 1, cb), deleteSpeed);
+                } else {
+                    cb();
+                }
+            }
+
+            function runSequence() {
+                if (seqIdx >= sequences.length) {
+                    // All done — show subtitle + button
+                    setTimeout(() => {
+                        subEl.style.opacity = '1';
+                        setTimeout(() => {
+                            btnEl.style.opacity = '1';
+                        }, 400);
+                    }, 300);
+                    return;
+                }
+
+                const seq = sequences[seqIdx];
+                if (seq.isDelete) {
+                    deleteText(seq.text, seq.text.length, () => {
+                        seqIdx++;
+                        setTimeout(runSequence, pauseAfterDelete);
+                    });
+                } else {
+                    typeText(seq.text, 0, () => {
+                        seqIdx++;
+                        if (seq.isFinal) {
+                            setTimeout(runSequence, 0);
+                        } else {
+                            setTimeout(runSequence, pauseAfterType);
+                        }
+                    });
+                }
+            }
+
+            // Start after a brief pause
+            setTimeout(runSequence, 600);
+        })();
+
+        // ===== RESULT MAPPING =====
+        const resultMap = {
+            'BUILD-LEAD-CREATE-DEPTH-SPEAK-STRUCTURE': { word: 'ARCHITECT', desc: 'You build systems with intention. You lead by making the invisible visible — designing structures that let others do their best work.' },
+            'BUILD-LEAD-CREATE-DEPTH-SPEAK-FLOW': { word: 'VISIONARY', desc: 'You see what doesn\'t exist yet and speak it into being. Your gift is turning abstract possibility into tangible direction.' },
+            'BUILD-LEAD-CREATE-DEPTH-LISTEN-STRUCTURE': { word: 'ENGINEER', desc: 'You listen deeply, then build precisely. Every structure you create reflects an understanding of what people actually need.' },
+            'BUILD-LEAD-CREATE-DEPTH-LISTEN-FLOW': { word: 'CULTIVATOR', desc: 'You grow things — ideas, teams, possibilities. Your leadership is quiet but generative, creating conditions for others to thrive.' },
+            'BUILD-LEAD-CREATE-BREADTH-SPEAK-STRUCTURE': { word: 'DIRECTOR', desc: 'You orchestrate complexity. Your range of creative vision combined with structural thinking makes you the one who turns chaos into cohesion.' },
+            'BUILD-LEAD-CREATE-BREADTH-SPEAK-FLOW': { word: 'CATALYST', desc: 'You ignite change across boundaries. Your energy is infectious and your creative instincts open doors others didn\'t see.' },
+            'BUILD-LEAD-CREATE-BREADTH-LISTEN-STRUCTURE': { word: 'DESIGNER', desc: 'You shape experiences with care. You lead by synthesizing input from everywhere into solutions that are both beautiful and functional.' },
+            'BUILD-LEAD-CREATE-BREADTH-LISTEN-FLOW': { word: 'WEAVER', desc: 'You connect threads others miss. Your creative leadership comes from seeing how different worlds relate and bringing them together.' },
+            'BUILD-LEAD-ANALYZE-DEPTH-SPEAK-STRUCTURE': { word: 'STRATEGIST', desc: 'You think in systems and communicate with precision. Your leadership comes from seeing the deep architecture beneath the surface.' },
+            'BUILD-LEAD-ANALYZE-DEPTH-SPEAK-FLOW': { word: 'TRANSLATOR', desc: 'You take complex ideas and make them move. Your gift is turning deep analysis into language that inspires action.' },
+            'BUILD-LEAD-ANALYZE-DEPTH-LISTEN-STRUCTURE': { word: 'SCHOLAR', desc: 'You build knowledge with rigor and patience. Your depth of understanding becomes the foundation others build upon.' },
+            'BUILD-LEAD-ANALYZE-DEPTH-LISTEN-FLOW': { word: 'SAGE', desc: 'You hold wisdom lightly. Your deep understanding flows naturally into guidance — not through authority, but through insight.' },
+            'BUILD-LEAD-ANALYZE-BREADTH-SPEAK-STRUCTURE': { word: 'COMMANDER', desc: 'You see the whole board and move decisively. Your analytical breadth and clear communication make you a natural leader of complex operations.' },
+            'BUILD-LEAD-ANALYZE-BREADTH-SPEAK-FLOW': { word: 'PIONEER', desc: 'You chart new territory by reading the landscape. Your broad analytical mind and persuasive voice open paths that didn\'t exist before.' },
+            'BUILD-LEAD-ANALYZE-BREADTH-LISTEN-STRUCTURE': { word: 'CURATOR', desc: 'You select what matters. From the noise of everything, you identify what belongs and arrange it with intention and care.' },
+            'BUILD-LEAD-ANALYZE-BREADTH-LISTEN-FLOW': { word: 'SYNTHESIZER', desc: 'You absorb everything, then distill. Your leadership emerges from the rare ability to find pattern in chaos and share it gently.' },
+            'BUILD-SUPPORT-CREATE-DEPTH-SPEAK-STRUCTURE': { word: 'CRAFTSPERSON', desc: 'You create with precision and pride. Your deep focus and structured approach produce work that speaks for itself.' },
+            'BUILD-SUPPORT-CREATE-DEPTH-SPEAK-FLOW': { word: 'STORYTELLER', desc: 'You shape raw experience into meaning. Your creative depth and natural voice turn the ordinary into something people remember.' },
+            'BUILD-SUPPORT-CREATE-DEPTH-LISTEN-STRUCTURE': { word: 'ARTISAN', desc: 'You build beautiful, lasting things through careful attention. Your work is quiet, deep, and unmistakably yours.' },
+            'BUILD-SUPPORT-CREATE-DEPTH-LISTEN-FLOW': { word: 'NURTURER', desc: 'You grow things with patience and presence. Your creativity flows from deep listening and a genuine care for what emerges.' },
+            'BUILD-SUPPORT-CREATE-BREADTH-SPEAK-STRUCTURE': { word: 'PRODUCER', desc: 'You make things happen across domains. Your organized creativity and collaborative voice bring ambitious projects to life.' },
+            'BUILD-SUPPORT-CREATE-BREADTH-SPEAK-FLOW': { word: 'SPARK', desc: 'You light up rooms and possibilities. Your wide creative energy and authentic voice make everything around you more alive.' },
+            'BUILD-SUPPORT-CREATE-BREADTH-LISTEN-STRUCTURE': { word: 'BUILDER', desc: 'You construct quietly and broadly. Your gift is creating the infrastructure — physical or emotional — that holds everything together.' },
+            'BUILD-SUPPORT-CREATE-BREADTH-LISTEN-FLOW': { word: 'GARDENER', desc: 'You plant seeds everywhere and trust the process. Your broad creative instincts and patient presence create abundance naturally.' },
+            'BUILD-SUPPORT-ANALYZE-DEPTH-SPEAK-STRUCTURE': { word: 'ADVISOR', desc: 'You study deeply and share wisely. People trust your analysis because it comes from genuine understanding, not performance.' },
+            'BUILD-SUPPORT-ANALYZE-DEPTH-SPEAK-FLOW': { word: 'MENTOR', desc: 'You see potential in people and help them name it. Your deep insight flows naturally into guidance that changes trajectories.' },
+            'BUILD-SUPPORT-ANALYZE-DEPTH-LISTEN-STRUCTURE': { word: 'ANCHOR', desc: 'You hold steady when everything moves. Your quiet depth and structural mind make you the person everyone counts on.' },
+            'BUILD-SUPPORT-ANALYZE-DEPTH-LISTEN-FLOW': { word: 'GUARDIAN', desc: 'You protect what matters through understanding. Your deep, patient analysis serves the people and things you care about.' },
+            'BUILD-SUPPORT-ANALYZE-BREADTH-SPEAK-STRUCTURE': { word: 'ORGANIZER', desc: 'You bring order to complexity with care. Your broad analytical mind and clear communication create systems that serve people.' },
+            'BUILD-SUPPORT-ANALYZE-BREADTH-SPEAK-FLOW': { word: 'CONNECTOR', desc: 'You see relationships everywhere. Your wide perspective and warm communication bridge gaps between people, ideas, and possibilities.' },
+            'BUILD-SUPPORT-ANALYZE-BREADTH-LISTEN-STRUCTURE': { word: 'STEWARD', desc: 'You take care of what\'s been built and make it better. Your broad awareness and quiet diligence preserve what matters.' },
+            'BUILD-SUPPORT-ANALYZE-BREADTH-LISTEN-FLOW': { word: 'NAVIGATOR', desc: 'You find the way through. Your patient attention to the full landscape helps others move forward with confidence.' },
+            'DISCOVER-LEAD-CREATE-DEPTH-SPEAK-STRUCTURE': { word: 'INVENTOR', desc: 'You discover new possibilities and give them form. Your creative leadership turns deep curiosity into structured innovation.' },
+            'DISCOVER-LEAD-CREATE-DEPTH-SPEAK-FLOW': { word: 'MUSE', desc: 'You inspire through exploration. Your deep creative wandering and magnetic voice pull others into new ways of seeing.' },
+            'DISCOVER-LEAD-CREATE-DEPTH-LISTEN-STRUCTURE': { word: 'RESEARCHER', desc: 'You uncover what\'s hidden and give it structure. Your creative analysis reveals patterns that reshape understanding.' },
+            'DISCOVER-LEAD-CREATE-DEPTH-LISTEN-FLOW': { word: 'MYSTIC', desc: 'You access insights others can\'t reach. Your deep creative exploration and intuitive listening reveal what lies beneath the surface.' },
+            'DISCOVER-LEAD-CREATE-BREADTH-SPEAK-STRUCTURE': { word: 'IMPRESARIO', desc: 'You curate experiences across worlds. Your wide creative vision and commanding voice make ambitious productions possible.' },
+            'DISCOVER-LEAD-CREATE-BREADTH-SPEAK-FLOW': { word: 'EXPLORER', desc: 'You venture into the unknown and bring back stories. Your boundless curiosity and expressive energy make discovery contagious.' },
+            'DISCOVER-LEAD-CREATE-BREADTH-LISTEN-STRUCTURE': { word: 'MAPPER', desc: 'You chart territories no one has named. Your wide creative instincts and careful listening create frameworks for the uncharted.' },
+            'DISCOVER-LEAD-CREATE-BREADTH-LISTEN-FLOW': { word: 'ALCHEMIST', desc: 'You transform the ordinary into the extraordinary. Your wide-ranging curiosity and intuitive creativity produce unexpected magic.' },
+            'DISCOVER-LEAD-ANALYZE-DEPTH-SPEAK-STRUCTURE': { word: 'THEORIST', desc: 'You see the deep structure of things and name it. Your analytical leadership turns discovery into frameworks others can use.' },
+            'DISCOVER-LEAD-ANALYZE-DEPTH-SPEAK-FLOW': { word: 'PHILOSOPHER', desc: 'You question everything beautifully. Your deep analytical mind and eloquent voice make the biggest questions feel approachable.' },
+            'DISCOVER-LEAD-ANALYZE-DEPTH-LISTEN-STRUCTURE': { word: 'DETECTIVE', desc: 'You find what others miss. Your methodical curiosity and deep listening reveal truths hidden in plain sight.' },
+            'DISCOVER-LEAD-ANALYZE-DEPTH-LISTEN-FLOW': { word: 'ORACLE', desc: 'You sense what\'s coming. Your deep analytical intuition and patient listening give you foresight that feels almost supernatural.' },
+            'DISCOVER-LEAD-ANALYZE-BREADTH-SPEAK-STRUCTURE': { word: 'ARCHITECT', desc: 'You design systems for the unknown. Your analytical breadth and clear voice create blueprints for territories yet to be explored.' },
+            'DISCOVER-LEAD-ANALYZE-BREADTH-SPEAK-FLOW': { word: 'FUTURIST', desc: 'You see around corners. Your wide analytical curiosity and persuasive voice help others prepare for what hasn\'t happened yet.' },
+            'DISCOVER-LEAD-ANALYZE-BREADTH-LISTEN-STRUCTURE': { word: 'CARTOGRAPHER', desc: 'You map complexity with care. Your broad analysis and attentive listening create order in uncharted space.' },
+            'DISCOVER-LEAD-ANALYZE-BREADTH-LISTEN-FLOW': { word: 'PATHFINDER', desc: 'You discover routes where none exist. Your wide awareness and gentle intuition guide others through unfamiliar terrain.' },
+            'DISCOVER-SUPPORT-CREATE-DEPTH-SPEAK-STRUCTURE': { word: 'INTERPRETER', desc: 'You translate the undiscovered into the understood. Your deep creative insight and clear voice bridge the gap between worlds.' },
+            'DISCOVER-SUPPORT-CREATE-DEPTH-SPEAK-FLOW': { word: 'POET', desc: 'You find beauty in the unnoticed. Your deep creative sensitivity and authentic voice give language to what others feel but can\'t say.' },
+            'DISCOVER-SUPPORT-CREATE-DEPTH-LISTEN-STRUCTURE': { word: 'KEEPER', desc: 'You preserve what others overlook. Your deep creative attention and quiet care protect the delicate things that matter.' },
+            'DISCOVER-SUPPORT-CREATE-DEPTH-LISTEN-FLOW': { word: 'HEALER', desc: 'You restore through presence and creativity. Your deep listening and gentle making help people reconnect with what they\'ve lost.' },
+            'DISCOVER-SUPPORT-CREATE-BREADTH-SPEAK-STRUCTURE': { word: 'DOCENT', desc: 'You make the unknown accessible. Your wide creative knowledge and warm communication invite everyone into discovery.' },
+            'DISCOVER-SUPPORT-CREATE-BREADTH-SPEAK-FLOW': { word: 'WANDERER', desc: 'You find gold in unexpected places. Your wide creative curiosity and open spirit turn every encounter into possibility.' },
+            'DISCOVER-SUPPORT-CREATE-BREADTH-LISTEN-STRUCTURE': { word: 'ARCHIVIST', desc: 'You collect and preserve with intention. Your wide creative attention and careful listening build repositories of meaning.' },
+            'DISCOVER-SUPPORT-CREATE-BREADTH-LISTEN-FLOW': { word: 'COMPANION', desc: 'You walk alongside others into the unknown. Your wide creative spirit and deep listening make every journey feel safe and exciting.' },
+            'DISCOVER-SUPPORT-ANALYZE-DEPTH-SPEAK-STRUCTURE': { word: 'GUIDE', desc: 'You illuminate the path with clarity. Your deep analysis and supportive voice help others see what was there all along.' },
+            'DISCOVER-SUPPORT-ANALYZE-DEPTH-SPEAK-FLOW': { word: 'WITNESS', desc: 'You see clearly and name gently. Your deep attention and honest voice give others the gift of being truly understood.' },
+            'DISCOVER-SUPPORT-ANALYZE-DEPTH-LISTEN-STRUCTURE': { word: 'SENTINEL', desc: 'You watch carefully and protect wisely. Your deep analytical patience and quiet attention keep what matters safe.' },
+            'DISCOVER-SUPPORT-ANALYZE-DEPTH-LISTEN-FLOW': { word: 'LISTENER', desc: 'You hear what isn\'t said. Your deep analytical intuition and extraordinary patience reveal the story beneath the story.' },
+            'DISCOVER-SUPPORT-ANALYZE-BREADTH-SPEAK-STRUCTURE': { word: 'LIBRARIAN', desc: 'You organize knowledge for others. Your wide analytical mind and clear communication make the complex feel navigable.' },
+            'DISCOVER-SUPPORT-ANALYZE-BREADTH-SPEAK-FLOW': { word: 'BRIDGE', desc: 'You connect worlds that don\'t know they need each other. Your broad understanding and warm voice create unlikely and beautiful links.' },
+            'DISCOVER-SUPPORT-ANALYZE-BREADTH-LISTEN-STRUCTURE': { word: 'OBSERVER', desc: 'You notice everything and impose nothing. Your wide analytical attention and quiet presence reveal the truth of how things work.' },
+            'DISCOVER-SUPPORT-ANALYZE-BREADTH-LISTEN-FLOW': { word: 'COMPASS', desc: 'You point toward true north. Your broad awareness and gentle intuition help others find direction when everything feels uncertain.' },
+        };
+
+        // Fallback for any unmapped combo
+        const fallbackResult = { word: 'SEEKER', desc: 'You\'re drawn to meaning in all its forms. Your unique combination of instincts makes you someone who finds clarity in unexpected places.' };
+
+        // ===== FUNCTIONS =====
+        function startGame() {
+            choices = [];
+            currentRound = 0;
+            showScreen('screen-q1');
+        }
+
+        function choose(round, word) {
+            choices.push(word);
+            currentRound = round;
+
+            if (round < totalRounds) {
+                showScreen('screen-q' + (round + 1));
+            } else {
+                showCompression();
+            }
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active', 'slide-in', 'slide-in-left');
+            });
+
+            const screen = document.getElementById(id);
+            // Alternate slide direction for quiz rounds
+            const qMatch = id.match(/^screen-q(\d)$/);
+            const slideClass = (qMatch && parseInt(qMatch[1]) % 2 === 0) ? 'slide-in-left' : 'slide-in';
+            screen.classList.add('active', slideClass);
+
+            // Update background
+            const bg = screen.dataset.bg;
+            if (bg) document.body.style.backgroundColor = bg;
+
+            // Hide info triggers & marquee on reveal (content is inline)
+            const triggers = document.querySelector('.info-triggers');
+            const marquee = document.querySelector('.marquee');
+            if (id === 'screen-reveal' || id === 'screen-wordcloud') {
+                triggers.style.display = 'none';
+                marquee.style.display = 'none';
+                screen.style.bottom = '0';
+            } else {
+                triggers.style.display = '';
+                marquee.style.display = '';
+                screen.style.bottom = '';
+            }
+
+            // Update dots
+            updateDots();
+        }
+
+        const dotDimensions = ['values', 'strengths', 'skills', 'values', 'strengths', 'skills'];
+        const dimColorMap = { values: 'var(--color-values)', strengths: 'var(--color-strengths)', skills: 'var(--color-skills)' };
+
+        function updateDots() {
+            for (let q = 1; q <= totalRounds; q++) {
+                const dotsContainer = document.getElementById('dots-' + q);
+                if (dotsContainer) {
+                    dotsContainer.innerHTML = '';
+                    for (let d = 0; d < totalRounds; d++) {
+                        const dot = document.createElement('div');
+                        if (d < currentRound) {
+                            dot.className = 'round-dot color-' + dotDimensions[d];
+                        } else if (d === currentRound) {
+                            dot.className = 'round-dot current color-' + dotDimensions[d];
+                        } else {
+                            dot.className = 'round-dot';
+                        }
+                        dotsContainer.appendChild(dot);
+                    }
+                }
+
+                // Update progress bar
+                const qpb = document.getElementById('qpb-' + q);
+                if (qpb) {
+                    const pct = (q / totalRounds) * 100;
+                    qpb.style.width = pct + '%';
+                    qpb.style.backgroundColor = dimColorMap[dotDimensions[q - 1]];
+                }
+
+                // Update counter color
+                const rc = document.getElementById('rc-' + q);
+                if (rc) {
+                    rc.style.color = dimColorMap[dotDimensions[q - 1]];
+                }
+            }
+        }
+
+        // Dimension colors for floating words
+        const dimColors = ['values', 'strengths', 'skills', 'values', 'strengths', 'skills'];
+
+        function showCompression() {
+            showScreen('screen-compress');
+            document.body.style.backgroundColor = '#1A1A1A';
+
+            // Update logo & info triggers for dark bg
+            document.querySelector('.logo').style.color = '#fff';
+            document.querySelectorAll('.info-trigger').forEach(t => t.style.color = 'rgba(255,255,255,0.15)');
+
+            const area = document.getElementById('compressionArea');
+
+            // Create floating words with dimension colors
+            const positions = [
+                { left: '15%', top: '20%', size: '2.2rem' },
+                { left: '70%', top: '15%', size: '1.8rem' },
+                { left: '25%', top: '65%', size: '2rem' },
+                { left: '65%', top: '70%', size: '2.4rem' },
+                { left: '10%', top: '42%', size: '1.6rem' },
+                { left: '78%', top: '45%', size: '2rem' },
+            ];
+
+            choices.forEach((word, i) => {
+                const el = document.createElement('div');
+                el.className = 'floating-word dim-' + dimColors[i];
+                el.textContent = word;
+                el.style.left = positions[i].left;
+                el.style.top = positions[i].top;
+                el.style.fontSize = positions[i].size;
+                el.id = 'fw-' + i;
+                area.appendChild(el);
+            });
+
+            // Animate compression after a beat
+            setTimeout(() => {
+                document.querySelectorAll('.floating-word').forEach(el => {
+                    el.classList.add('compressed');
+                });
+            }, 1400);
+
+            // Dramatic pause — words vanish, screen holds dark and empty
+            setTimeout(() => {
+                document.querySelectorAll('.floating-word').forEach(el => el.remove());
+            }, 3200);
+
+            // Show result word in gold after the empty beat
+            setTimeout(() => {
+                const key = choices.join('-');
+                const result = resultMap[key] || fallbackResult;
+
+                const resultWord = document.getElementById('resultWord');
+                resultWord.textContent = result.word;
+                resultWord.style.color = '#E8C848';
+                resultWord.classList.add('visible');
+
+                document.getElementById('resultDescText').textContent = result.desc;
+
+                setTimeout(() => {
+                    document.getElementById('resultDesc').classList.add('visible');
+                }, 700);
+
+                // Show dimension breakdown chips
+                setTimeout(() => {
+                    const breakdown = document.getElementById('dimBreakdown');
+                    breakdown.innerHTML = '';
+                    const dimLabels = ['Values', 'Strengths', 'Skills'];
+                    const dimCSSColors = ['#E8585A', '#8B6AAE', '#3BBFB2'];
+                    // Show pairs: rounds 1&4 = Values, 2&5 = Strengths, 3&6 = Skills
+                    const pairs = [
+                        { label: dimLabels[0], words: [choices[0], choices[3]], color: dimCSSColors[0] },
+                        { label: dimLabels[1], words: [choices[1], choices[4]], color: dimCSSColors[1] },
+                        { label: dimLabels[2], words: [choices[2], choices[5]], color: dimCSSColors[2] }
+                    ];
+                    pairs.forEach(p => {
+                        const chip = document.createElement('div');
+                        chip.className = 'dim-chip';
+                        chip.style.color = p.color;
+                        chip.style.borderColor = p.color;
+                        chip.textContent = p.label + ': ' + p.words.join(' + ');
+                        breakdown.appendChild(chip);
+                    });
+                    breakdown.classList.add('visible');
+                }, 1200);
+
+                setTimeout(() => {
+                    document.getElementById('revealWordSmall').textContent = 'Your word is';
+                    document.getElementById('revealHeroWord').textContent = result.word;
+                    document.getElementById('revealHeroDesc').textContent = result.desc;
+                }, 900);
+
+                // Auto-advance: hold for 3.5s, then cinematic zoom-fade into reveal
+                setTimeout(() => {
+                    const compressScreen = document.getElementById('screen-compress');
+                    compressScreen.classList.add('cinematic-out');
+
+                    // After the zoom-fade animation completes, switch screens
+                    setTimeout(() => {
+                        compressScreen.classList.remove('cinematic-out');
+                        showScreen('screen-reveal');
+                        document.body.style.backgroundColor = '#F9F7F4';
+                        document.getElementById('screen-reveal').scrollTop = 0;
+                        document.querySelector('.logo').style.color = '';
+                        document.querySelectorAll('.info-trigger').forEach(t => t.style.color = '');
+                    }, 1400);
+                }, 3500);
+            }, 4000);
+        }
+
+        function resetGame() {
+            // Clean up compression elements
+            document.querySelectorAll('.floating-word').forEach(el => el.remove());
+            document.getElementById('resultWord').classList.remove('visible');
+            document.getElementById('resultWord').textContent = '';
+            document.getElementById('resultDesc').classList.remove('visible');
+
+            // Clear reveal hero
+            document.getElementById('revealWordSmall').textContent = '';
+            document.getElementById('revealHeroWord').textContent = '';
+            document.getElementById('revealHeroDesc').textContent = '';
+
+            // Reset background
+            document.body.style.backgroundColor = '#F2F0ED';
+
+            // Reset logo & triggers for light bg
+            document.querySelector('.logo').style.color = '';
+            document.querySelectorAll('.info-trigger').forEach(t => t.style.color = '');
+
+            // Reset cinematic class and dimension breakdown
+            document.getElementById('screen-compress').classList.remove('cinematic-out');
+            const db = document.getElementById('dimBreakdown');
+            db.classList.remove('visible');
+            db.innerHTML = '';
+
+            // Scroll reveal back to top for next play
+            document.getElementById('screen-reveal').scrollTop = 0;
+
+            // Reset word cloud
+            resetWordCloud();
+
+            // Reset intro to final state (no re-typing)
+            document.getElementById('introTyped').innerHTML = "What's your<br><em>one word?</em>";
+            document.getElementById('introSub').style.opacity = '1';
+            document.getElementById('introBtn').style.opacity = '1';
+
+            // Reset scroll-reveal sections for next play
+            document.querySelectorAll('.scroll-reveal').forEach(el => el.classList.remove('visible'));
+
+            choices = [];
+            currentRound = 0;
+
+            showScreen('screen-intro');
+        }
+
+        // ===== INFO PANELS =====
+        function openPanel(name) {
+            closePanel();
+            setTimeout(() => {
+                document.getElementById('panel-' + name).classList.add('open');
+                document.getElementById('panelBackdrop').classList.add('visible');
+            }, 50);
+        }
+
+        function closePanel() {
+            document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('panelBackdrop').classList.remove('visible');
+        }
+
+        // ESC to close panels
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePanel();
+        });
+
+        // ===== STICKY NAV & SMOOTH SCROLL =====
+        const revealScreen = document.getElementById('screen-reveal');
+        const siteNav = document.getElementById('siteNav');
+
+        revealScreen.addEventListener('scroll', () => {
+            if (revealScreen.scrollTop > window.innerHeight * 0.6) {
+                siteNav.classList.add('visible');
+            } else {
+                siteNav.classList.remove('visible');
+            }
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('.site-nav-links a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.getElementById(link.getAttribute('href').slice(1));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // ===== SCROLL-REVEAL OBSERVER =====
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { root: revealScreen, threshold: 0.12 });
+
+        document.querySelectorAll('#screen-reveal .scroll-reveal').forEach(el => {
+            scrollObserver.observe(el);
+        });
+
+        // ===== WORD CLOUD NAVIGATION =====
+        // Words categorized by section — each word links to its section
+        const wcSections = {
+            about: {
+                color: '#E8585A',
+                target: 'sect-about',
+                words: [
+                    'Design', 'Career', 'Story', 'Narrative',
+                    'Authentic', 'Strategic', 'Transform',
+                    'Achievements', 'Compelling', 'Framework',
+                    'Psychology', 'Thinking', 'Confidence',
+                    'Clarity', 'Mission', 'Uncertainty',
+                    'Lo/Be', 'Designed', 'Belief',
+                    'Purpose', 'Identity', 'Belonging',
+                    'Growth', 'Vision', 'Intentional'
+                ]
+            },
+            process: {
+                color: '#3BBFB2',
+                target: 'sect-process',
+                words: [
+                    'Discovery', 'Framing', 'Prototyping',
+                    'Exploration', 'Sense-Making', 'Integration',
+                    'Construction', 'Articulation', 'Values',
+                    'Patterns', 'Themes', 'Odyssey',
+                    'Experiment', 'Reflect', 'Synthesize',
+                    'Iterate', 'Research', 'Strategy',
+                    'Mapping', 'Alignment', 'Reframe',
+                    'Mindset', 'Blueprint', 'Ideation'
+                ]
+            },
+            team: {
+                color: '#8B6AAE',
+                target: 'sect-team',
+                words: [
+                    'Seth', 'Peter', 'Shahab', 'Brandon',
+                    'Dartmouth', 'Architecture', 'Princeton',
+                    'Harvard', 'RISD', 'Fordham',
+                    'Scholars', 'Coaching', 'Authorship',
+                    'Liberal Arts', 'Storytelling', 'Courage',
+                    'Systemic', 'Equity', 'Mentor',
+                    'Community', 'Interdisciplinary',
+                    'Pedagogy', 'Design Thinking', 'Advocacy'
+                ]
+            },
+            services: {
+                color: '#E8C848',
+                target: 'sect-services',
+                words: [
+                    'Workshops', 'Retreats', 'Curriculum',
+                    'Consulting', 'Keynote', 'Programs',
+                    'Portfolio', 'Branding', 'Leadership',
+                    'One-on-One'
+                ]
+            }
+        };
+
+        let wcEls = [];
+        let wcAnimId = null;
+        let wcDone = false;
+        let wcMouseX = -1000;
+        let wcMouseY = -1000;
+
+        function initWordCloud() {
+            const box = document.getElementById('wordCloudContainer');
+            if (!box) return;
+            const w = box.offsetWidth;
+            const h = box.offsetHeight;
+            if (w === 0 || h === 0) return;
+
+            // Clear any previous
+            wcEls.forEach(el => el.remove());
+            wcEls = [];
+            wcDone = false;
+            wcMouseX = -1000;
+            wcMouseY = -1000;
+            const hint = document.getElementById('wordCloudHint');
+            if (hint) hint.style.opacity = '1';
+            const legend = document.getElementById('wcLegend');
+            if (legend) legend.style.opacity = '1';
+
+            // Remove old ripple if any
+            const oldRipple = box.querySelector('.wc-ripple');
+            if (oldRipple) oldRipple.remove();
+
+            // Depth layers: 0=back (blurry, slow), 1=mid, 2=front (sharp, large)
+            const depthConfig = [
+                { sizes: [0.55, 0.65, 0.75], blur: 3, opacity: [0.08, 0.14], speed: 0.15 },
+                { sizes: [0.85, 1.0, 1.2, 1.4], blur: 0.5, opacity: [0.2, 0.45], speed: 0.35 },
+                { sizes: [1.6, 1.9, 2.3, 2.7], blur: 0, opacity: [0.35, 0.7], speed: 0.18 }
+            ];
+
+            // Build flat array
+            const allWords = [];
+            Object.keys(wcSections).forEach(key => {
+                const sec = wcSections[key];
+                sec.words.forEach(word => {
+                    allWords.push({ text: word, color: sec.color, target: sec.target, section: key });
+                });
+            });
+
+            // Shuffle
+            for (let i = allWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+            }
+
+            allWords.forEach((item, i) => {
+                const el = document.createElement('div');
+                el.textContent = item.text;
+
+                // Assign depth layer (roughly 30% back, 40% mid, 30% front)
+                const rand = Math.random();
+                const depth = rand < 0.3 ? 0 : rand < 0.7 ? 1 : 2;
+                const dc = depthConfig[depth];
+
+                const fontSize = dc.sizes[Math.floor(Math.random() * dc.sizes.length)];
+                const baseOpacity = dc.opacity[0] + Math.random() * (dc.opacity[1] - dc.opacity[0]);
+
+                el.style.cssText = 'position:absolute;font-family:var(--font-display);font-weight:700;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;will-change:transform,filter;';
+                el.style.color = item.color;
+                el.style.fontSize = fontSize + 'rem';
+                el.style.opacity = baseOpacity.toFixed(2);
+                el.style.filter = dc.blur > 0 ? 'blur(' + dc.blur + 'px)' : '';
+                el.style.zIndex = depth;
+
+                const x = Math.random() * (w - 140) + 40;
+                const y = 55 + Math.random() * (h - 120);
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+
+                el._x = x;
+                el._y = y;
+                el._vx = (Math.random() - 0.5) * dc.speed * 2;
+                el._vy = (Math.random() - 0.5) * dc.speed * 1.4;
+                el._w = w;
+                el._h = h;
+                el._depth = depth;
+                el._baseOpacity = baseOpacity;
+                el._baseBlur = dc.blur;
+                el._section = item.section;
+                el._target = item.target;
+                el._magnetStrength = depth === 2 ? 0.06 : depth === 1 ? 0.03 : 0.01;
+
+                // Click: navigate to that section with ripple
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    navigateFromCloud(item.target, item.color, el._x, el._y);
+                });
+
+                // Tooltip on hover (desktop only)
+                el.addEventListener('mouseenter', function() {
+                    if (wcDone) return;
+                    let tooltip = document.getElementById('wcTooltip');
+                    if (!tooltip) {
+                        tooltip = document.createElement('div');
+                        tooltip.className = 'wc-tooltip';
+                        tooltip.id = 'wcTooltip';
+                        box.appendChild(tooltip);
+                    }
+                    tooltip.textContent = wcSectionDescriptions[item.section] || '';
+                    tooltip.style.left = el._x + 'px';
+                    tooltip.style.top = (el._y - 30) + 'px';
+                    tooltip.classList.add('visible');
+                });
+                el.addEventListener('mouseleave', function() {
+                    const tooltip = document.getElementById('wcTooltip');
+                    if (tooltip) tooltip.classList.remove('visible');
+                });
+
+                box.appendChild(el);
+                wcEls.push(el);
+            });
+
+            // Track mouse position for magnetic effect
+            box.addEventListener('mousemove', function(e) {
+                const rect = box.getBoundingClientRect();
+                wcMouseX = e.clientX - rect.left;
+                wcMouseY = e.clientY - rect.top;
+            });
+
+            box.addEventListener('mouseleave', function() {
+                wcMouseX = -1000;
+                wcMouseY = -1000;
+            });
+
+            // Drift animation with magnetic cursor + depth layers
+            function drift() {
+                if (wcDone) return;
+
+                for (let i = 0; i < wcEls.length; i++) {
+                    const el = wcEls[i];
+
+                    // Base drift
+                    el._x += el._vx;
+                    el._y += el._vy;
+
+                    // Magnetic cursor pull
+                    if (wcMouseX > 0) {
+                        const dx = wcMouseX - el._x;
+                        const dy = wcMouseY - el._y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const magnetRadius = 180;
+
+                        if (dist < magnetRadius && dist > 5) {
+                            const force = el._magnetStrength * (1 - dist / magnetRadius);
+                            el._x += dx * force;
+                            el._y += dy * force;
+
+                            // Brighten near cursor
+                            const glow = Math.min(1, el._baseOpacity + (1 - dist / magnetRadius) * 0.5);
+                            el.style.opacity = glow.toFixed(2);
+
+                            // Sharpen blurry words near cursor
+                            if (el._baseBlur > 0) {
+                                const sharpness = el._baseBlur * (dist / magnetRadius);
+                                el.style.filter = 'blur(' + sharpness.toFixed(1) + 'px)';
+                            }
+                        } else {
+                            el.style.opacity = el._baseOpacity.toFixed(2);
+                            if (el._baseBlur > 0) {
+                                el.style.filter = 'blur(' + el._baseBlur + 'px)';
+                            }
+                        }
+                    } else {
+                        el.style.opacity = el._baseOpacity.toFixed(2);
+                        if (el._baseBlur > 0) {
+                            el.style.filter = 'blur(' + el._baseBlur + 'px)';
+                        }
+                    }
+
+                    // Bounce off edges
+                    if (el._x < 25 || el._x > el._w - 130) el._vx *= -1;
+                    if (el._y < 50 || el._y > el._h - 45) el._vy *= -1;
+                    el._x = Math.max(25, Math.min(el._x, el._w - 130));
+                    el._y = Math.max(50, Math.min(el._y, el._h - 45));
+
+                    el.style.left = el._x + 'px';
+                    el.style.top = el._y + 'px';
+                }
+                wcAnimId = requestAnimationFrame(drift);
+            }
+            wcAnimId = requestAnimationFrame(drift);
+        }
+
+        function navigateFromCloud(targetId, accentColor, clickX, clickY) {
+            if (wcDone) return;
+            wcDone = true;
+            if (wcAnimId) cancelAnimationFrame(wcAnimId);
+
+            // Hide hint & legend
+            const hint = document.getElementById('wordCloudHint');
+            if (hint) hint.style.opacity = '0';
+            const legend = document.getElementById('wcLegend');
+            if (legend) legend.style.opacity = '0';
+
+            const box = document.getElementById('wordCloudContainer');
+            const cx = clickX || box.offsetWidth / 2;
+            const cy = clickY || box.offsetHeight / 2;
+
+            // Create ripple effect at click point
+            const ripple = document.createElement('div');
+            ripple.className = 'wc-ripple';
+            ripple.style.cssText = 'position:absolute;border-radius:50%;pointer-events:none;z-index:5;border:2px solid ' + accentColor + ';';
+            ripple.style.left = cx + 'px';
+            ripple.style.top = cy + 'px';
+            ripple.style.width = '0';
+            ripple.style.height = '0';
+            ripple.style.opacity = '0.6';
+            ripple.style.transform = 'translate(-50%,-50%)';
+            ripple.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+            box.appendChild(ripple);
+
+            // Expand ripple
+            requestAnimationFrame(() => {
+                const maxDim = Math.max(box.offsetWidth, box.offsetHeight) * 2.5;
+                ripple.style.width = maxDim + 'px';
+                ripple.style.height = maxDim + 'px';
+                ripple.style.opacity = '0';
+            });
+
+            // Animate words: ripple pushes outward, matching words swirl to center
+            wcEls.forEach((el, i) => {
+                const dx = el._x - cx;
+                const dy = el._y - cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+                const delay = Math.min(dist * 0.8, 300);
+
+                el.style.transition = 'all ' + (0.7 + Math.random() * 0.4).toFixed(2) + 's cubic-bezier(0.22, 1, 0.36, 1) ' + delay.toFixed(0) + 'ms';
+                el.style.filter = '';
+
+                if (el._target === targetId) {
+                    // Swirl toward center then converge
+                    const swirlAngle = angle + Math.PI * 0.6;
+                    const midX = cx + Math.cos(swirlAngle) * 80;
+                    const midY = cy + Math.sin(swirlAngle) * 80;
+                    el.style.left = midX + 'px';
+                    el.style.top = midY + 'px';
+                    el.style.opacity = '1';
+                    el.style.fontSize = '0.6rem';
+                } else {
+                    // Blast outward from click point
+                    const blastDist = Math.max(box.offsetWidth, box.offsetHeight);
+                    el.style.left = (cx + Math.cos(angle) * blastDist) + 'px';
+                    el.style.top = (cy + Math.sin(angle) * blastDist) + 'px';
+                    el.style.opacity = '0';
+                    el.style.fontSize = '0.3rem';
+                }
+            });
+
+            // After animation, transition to reveal screen scrolled to section
+            setTimeout(() => {
+                showScreen('screen-reveal');
+                document.body.style.backgroundColor = '#F9F7F4';
+                const revealScreen = document.getElementById('screen-reveal');
+                revealScreen.scrollTop = 0;
+
+                setTimeout(() => {
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Section highlight pulse
+                        setTimeout(() => {
+                            target.style.color = accentColor;
+                            target.classList.add('section-pulse');
+                            setTimeout(() => {
+                                target.classList.remove('section-pulse');
+                                target.style.color = '';
+                            }, 1200);
+                        }, 600);
+                    }
+                }, 300);
+            }, 1100);
+        }
+
+        function goToWordCloud() {
+            showScreen('screen-wordcloud');
+            document.body.style.backgroundColor = '#F9F7F4';
+            setTimeout(initWordCloud, 200);
+        }
+
+        function goToFullSite() {
+            showScreen('screen-reveal');
+            document.body.style.backgroundColor = '#F9F7F4';
+            document.getElementById('screen-reveal').scrollTop = 0;
+        }
+
+        function resetWordCloud() {
+            wcDone = false;
+            if (wcAnimId) cancelAnimationFrame(wcAnimId);
+            wcEls.forEach(el => el.remove());
+            wcEls = [];
+            wcMouseX = -1000;
+            wcMouseY = -1000;
+            const box = document.getElementById('wordCloudContainer');
+            if (box) { box.style.opacity = '1'; box.style.transition = ''; }
+            const hint = document.getElementById('wordCloudHint');
+            if (hint) hint.style.opacity = '1';
+            const legend = document.getElementById('wcLegend');
+            if (legend) legend.style.opacity = '1';
+            // Remove tooltip if lingering
+            const tt = document.getElementById('wcTooltip');
+            if (tt) tt.remove();
+        }
+
+        // ===== SHARE RESULT =====
+        function shareResult() {
+            const word = document.getElementById('revealHeroWord').textContent;
+            const text = 'My word is ' + word + '. What\'s yours?\nDiscover your one word → lo-be-story.com';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.getElementById('shareBtn');
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard!';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share Your Word';
+                    }, 2500);
+                });
+            }
+        }
+
+        // ===== SCROLL PROGRESS INDICATOR =====
+        (function initScrollProgress() {
+            const revealScreen = document.getElementById('screen-reveal');
+            const progressBar = document.getElementById('scrollProgressBar');
+
+            // Section color mapping for progress bar
+            const sectionColors = [
+                { id: 'sect-about', color: '#E8585A' },
+                { id: 'sect-story', color: '#E8585A' },
+                { id: 'sect-process', color: '#3BBFB2' },
+                { id: 'sect-services', color: '#E8C848' },
+                { id: 'sect-team', color: '#8B6AAE' }
+            ];
+
+            revealScreen.addEventListener('scroll', function() {
+                const scrollTop = revealScreen.scrollTop;
+                const scrollHeight = revealScreen.scrollHeight - revealScreen.clientHeight;
+                const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = pct + '%';
+
+                // Color based on current section
+                for (let i = sectionColors.length - 1; i >= 0; i--) {
+                    const el = document.getElementById(sectionColors[i].id);
+                    if (el && el.getBoundingClientRect().top < revealScreen.clientHeight * 0.5) {
+                        progressBar.style.backgroundColor = sectionColors[i].color;
+                        break;
+                    }
+                }
+
+                // Nav visibility
+                const nav = document.getElementById('siteNav');
+                if (scrollTop > 100) {
+                    nav.classList.add('visible');
+                } else {
+                    nav.classList.remove('visible');
+                }
+            });
+        })();
+
+        // ===== WORD CLOUD TOOLTIPS =====
+        const wcSectionDescriptions = {
+            about: 'Learn about our narrative design approach',
+            process: 'Explore our four-phase methodology',
+            team: 'Meet the scholars behind Lo/Be Story',
+            services: 'Discover our coaching and workshop offerings'
+        };
+
+        // ===== MOBILE TOUCH SUPPORT FOR WORD CLOUD =====
+        (function initMobileWordCloud() {
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (!isTouchDevice) return;
+
+            const box = document.getElementById('wordCloudContainer');
+            if (!box) return;
+
+            // On touch devices, use touch position for magnetic effect
+            box.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 1) {
+                    const rect = box.getBoundingClientRect();
+                    wcMouseX = e.touches[0].clientX - rect.left;
+                    wcMouseY = e.touches[0].clientY - rect.top;
+                }
+            }, { passive: true });
+
+            box.addEventListener('touchend', function() {
+                // Let magnetic effect linger briefly, then reset
+                setTimeout(() => {
+                    wcMouseX = -1000;
+                    wcMouseY = -1000;
+                }, 500);
+            });
+        })();
+    </script>
+
+</body>
+</html>
